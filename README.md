@@ -45,6 +45,25 @@ This project uses the provided FitFindr starter data:
 - `data/wardrobe_schema.json`: wardrobe item schema, a 10-item `example_wardrobe`, and an `empty_wardrobe` template.
 - `utils/data_loader.py`: helpers for `load_listings()`, `load_wardrobe_schema()`, `get_example_wardrobe()`, and `get_empty_wardrobe()`.
 
+## What's Included
+
+```text
+fitfindr/
+├── app.py                   # Gradio UI with filters, listing browser, history, and profile memory
+├── agent.py                 # Planning loop and session-state workflow
+├── tools.py                 # Required tools plus stretch tools
+├── data/
+│   ├── listings.json        # 40 mock secondhand listings from the starter kit
+│   └── wardrobe_schema.json # Wardrobe format, 10-item example wardrobe, and empty wardrobe
+├── utils/
+│   └── data_loader.py       # Helper functions for loading listings and wardrobe data
+├── tests/                   # Unit tests for tools, agent flow, and UI helpers
+├── planning.md              # Tool plan, state management, error handling, and architecture diagram
+├── demo_script.md           # Walkthrough for happy path, memory, stretch features, and failure path
+├── requirements.txt         # Python dependencies
+└── README.md                # Setup, usage, tool inventory, and rubric notes
+```
+
 ## Interface
 
 The Gradio UI includes separate controls for item description, size, max price, and "I mostly wear" styling preferences. The closet selector uses clearer labels: `Sample closet` for the built-in example wardrobe and `No closet items` for empty-wardrobe testing. Marketplace names such as Depop, Poshmark, Gem, and ThredUp are mock resale sources from the sample dataset.

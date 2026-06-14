@@ -90,25 +90,37 @@ State is stored in a single `session` dictionary returned by `run_agent()`. The 
 
 ```mermaid
 flowchart TD
-    User["User query"] --> Planner["Planning loop / run_agent"]
-    Planner --> State["Session state"]
-    Planner --> Search["search_listings(description, size, max_price)"]
-    Search -->|"results = []"| Retry{"Size filter used?"}
-    Retry -->|"yes"| SearchNoSize["Retry search with size=None"]
-    Retry -->|"no"| SearchError["Set session.error and return"]
+    User["User natural-language query"] -->|"query text + optional filters"| Planner["Planning loop: run_agent()"]
+    UI["Gradio UI controls"] -->|"size, max_price, closet profile, saved profile memory"| Planner
+    Wardrobe["Wardrobe data from data/wardrobe_schema.json"] -->|"example_wardrobe or empty_wardrobe"| Planner
+
+    Planner -->|"initialize / update"| State["Session state dictionary"]
+    State -. stores .-> SearchParams["search_params: description, size, max_price"]
+
+    Planner -->|"description, size, max_price"| Search["Tool 1: search_listings(description, size, max_price)"]
+    Search -->|"reads 40 starter listings"| ListingsData["data/listings.json"]
+    ListingsData -->|"candidate listings"| Search
+    Search -->|"results = []"| Retry{"Was a size filter used?"}
+    Retry -->|"yes: loosen constraint"| SearchNoSize["Retry search_listings(description, size=None, max_price)"]
+    Retry -->|"no"| SearchError["[ERROR] session.error = 'No listings found...'"]
     SearchNoSize -->|"results = []"| SearchError
-    Search -->|"results = [item, ...]"| Select["session.selected_item = results[0]"]
+    SearchError -->|"early return; do not call downstream tools"| Return["Return session to UI"]
+
+    Search -->|"results = [item, ...]"| Select["Session: selected_item = results[0]"]
     SearchNoSize -->|"results = [item, ...]"| Select
-    Select --> Price["compare_price(selected_item)"]
-    Price --> SavePrice["session.price_assessment = assessment"]
-    SavePrice --> Trend["get_trend_awareness(selected_item, size)"]
-    Trend --> SaveTrend["session.trend_context = trend"]
-    SaveTrend --> Outfit["suggest_outfit(selected_item, wardrobe)"]
-    Outfit --> SaveOutfit["session.outfit_suggestion = outfit"]
-    SaveOutfit --> FitCard["create_fit_card(outfit_suggestion, selected_item)"]
-    FitCard --> SaveCard["session.fit_card = caption"]
-    SaveCard --> Return["Return session to UI"]
-    SearchError --> Return
+    Select -->|"selected_item"| Price["Stretch: compare_price(selected_item)"]
+    Price -->|"assessment + comparable_titles"| SavePrice["Session: price_assessment = {...}"]
+
+    SavePrice -->|"selected_item + requested size"| Trend["Stretch: get_trend_awareness(selected_item, size)"]
+    Trend -->|"trend_tags + styling_tip"| SaveTrend["Session: trend_context = {...}"]
+
+    SaveTrend -->|"selected_item + wardrobe"| Outfit["Tool 2: suggest_outfit(selected_item, wardrobe)"]
+    Outfit -->|"outfit text + trend note"| SaveOutfit["Session: outfit_suggestion = '...'"]
+
+    SaveOutfit -->|"outfit_suggestion + selected_item"| FitCard["Tool 3: create_fit_card(outfit_suggestion, selected_item)"]
+    FitCard -->|"caption text"| SaveCard["Session: fit_card = '...'"]
+    SaveCard -->|"selected listing + outfit + fit card + trace"| Return
+
     State -. stores .- Select
     State -. stores .- SavePrice
     State -. stores .- SaveTrend
