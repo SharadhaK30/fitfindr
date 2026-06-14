@@ -11,9 +11,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Optional LLM support uses Groq:
+Optional LLM support uses Groq. Create a `.env` file in this directory:
 
-```bash
+```env
 GROQ_API_KEY=your_key_here
 ```
 
@@ -30,6 +30,20 @@ Or test the planner directly:
 ```bash
 python agent.py
 ```
+
+Verify the starter data loads correctly:
+
+```bash
+python utils/data_loader.py
+```
+
+## Starter Data
+
+This project uses the provided FitFindr starter data:
+
+- `data/listings.json`: 40 mock secondhand listings with `id`, `title`, `description`, `category`, `style_tags`, `size`, `condition`, `price`, `colors`, `brand`, and `platform`.
+- `data/wardrobe_schema.json`: wardrobe item schema, a 10-item `example_wardrobe`, and an `empty_wardrobe` template.
+- `utils/data_loader.py`: helpers for `load_listings()`, `load_wardrobe_schema()`, `get_example_wardrobe()`, and `get_empty_wardrobe()`.
 
 ## Interface
 

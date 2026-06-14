@@ -10,6 +10,29 @@ from typing import Any
 from utils.data_loader import load_listings
 
 
+QUERY_FILLER_TOKENS = {
+    "a",
+    "an",
+    "and",
+    "for",
+    "find",
+    "looking",
+    "mostly",
+    "under",
+    "wear",
+    "with",
+}
+
+BROAD_STYLE_TOKENS = {
+    "classic",
+    "preppy",
+    "thrift",
+    "thrifted",
+    "vintage",
+    "y2k",
+}
+
+
 def _normalize_text(value: Any) -> str:
     if value is None:
         return ""
@@ -20,6 +43,10 @@ def _normalize_text(value: Any) -> str:
 
 def _tokens(text: str) -> set[str]:
     return {token for token in re.findall(r"[a-z0-9']+", text.lower()) if len(token) > 1}
+
+
+def _core_query_tokens(tokens: set[str]) -> set[str]:
+    return tokens - QUERY_FILLER_TOKENS - BROAD_STYLE_TOKENS
 
 
 def _size_matches(item_size: Any, requested_size: str | None) -> bool:
@@ -50,6 +77,7 @@ def search_listings(
         return []
 
     query_tokens = _tokens(description)
+    core_query_tokens = _core_query_tokens(query_tokens)
     results: list[tuple[int, float, dict[str, Any]]] = []
 
     for item in listings:
@@ -72,6 +100,8 @@ def search_listings(
         )
         listing_tokens = _tokens(searchable)
         overlap = query_tokens & listing_tokens
+        if core_query_tokens and not (core_query_tokens & listing_tokens):
+            continue
 
         score = len(overlap) * 4
         title = _normalize_text(item.get("title"))

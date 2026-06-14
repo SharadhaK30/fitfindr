@@ -146,11 +146,11 @@ def test_preview_comparable_item_changes_preview_before_history_commit():
         "Sample closet",
     )
     choices_update = preview[5]
-    comparable_choice = next(choice for choice in choices_update["choices"] if "Linen Button-Up Shirt" in choice)
+    comparable_choice = next(choice for choice in choices_update["choices"] if "Leather Belt" in choice)
     comparable_preview = preview_comparable_item(comparable_choice, preview[4])
     rows, _ = add_preview_to_history(comparable_preview[4], [])
     _, profiles, _, _ = save_profiles_from_history(rows, [])
 
-    assert "Linen Button-Up Shirt" in comparable_preview[0]
-    assert rows[0][7] == "Linen Button-Up Shirt"
+    assert "Leather Belt" in comparable_preview[0]
+    assert "Leather Belt" in rows[0][7]
     assert profiles == []

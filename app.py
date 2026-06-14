@@ -13,8 +13,8 @@ from utils.data_loader import get_empty_wardrobe, get_example_wardrobe, load_lis
 STARTER_SEARCHES = [
     ("Vintage tee", "vintage graphic tee", "M", 30, "Baggy jeans + chunky sneakers"),
     ("Preppy polo", "preppy striped rugby polo", "M", 35, "Straight jeans + loafers"),
-    ("Cozy layer", "cream cable knit cardigan", "L", 30, "Slip skirt + boots"),
-    ("90s dress", "90s slip dress", "M", 40, "Sneakers + denim jacket"),
+    ("Cozy layer", "chunky brown knit cardigan", "Any", 40, "Slip skirt + boots"),
+    ("90s dress", "90s silk slip dress", "M", 40, "Sneakers + denim jacket"),
     ("No-result test", "designer ballgown", "XXS", 5, "Anything simple"),
 ]
 

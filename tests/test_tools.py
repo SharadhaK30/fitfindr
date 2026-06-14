@@ -9,7 +9,7 @@ def test_search_returns_results():
 
     assert isinstance(results, list)
     assert len(results) > 0
-    assert results[0]["title"] == "Faded Band Tee"
+    assert results[0]["title"] == "Vintage Band Tee — Faded Grey"
 
 
 def test_search_empty_results():
@@ -34,10 +34,10 @@ def test_suggest_outfit_with_empty_wardrobe_returns_advice():
 
 
 def test_suggest_outfit_uses_wardrobe_piece():
-    results = search_listings("vintage graphic tee", size="M", max_price=30)
+    results = search_listings("vintage graphic tee", size=None, max_price=30)
     suggestion = suggest_outfit(results[0], get_example_wardrobe())
 
-    assert "baggy light-wash jeans" in suggestion
+    assert "Baggy straight-leg jeans, dark wash" in suggestion
 
 
 def test_create_fit_card_handles_empty_outfit():
@@ -56,7 +56,7 @@ def test_create_fit_card_returns_caption():
 
 
 def test_compare_price_returns_reasoned_assessment():
-    results = search_listings("vintage graphic tee", size="M", max_price=30)
+    results = search_listings("vintage graphic tee", size=None, max_price=30)
     assessment = compare_price(results[0])
 
     assert assessment["assessment"] in {"good deal", "fair", "pricey", "unknown"}
@@ -66,8 +66,8 @@ def test_compare_price_returns_reasoned_assessment():
 
 
 def test_trend_awareness_returns_tags_and_tip():
-    results = search_listings("vintage graphic tee", size="M", max_price=30)
-    trend = get_trend_awareness(results[0], size="M")
+    results = search_listings("vintage graphic tee", size=None, max_price=30)
+    trend = get_trend_awareness(results[0], size=None)
 
     assert trend["trend_tags"]
     assert trend["styling_tip"]

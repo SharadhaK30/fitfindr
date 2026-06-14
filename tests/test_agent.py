@@ -11,7 +11,8 @@ def test_agent_complete_flow_populates_state():
     )
 
     assert session["error"] is None
-    assert session["selected_item"]["title"] == "Faded Band Tee"
+    assert session["selected_item"]["title"] == "Vintage Band Tee — Faded Grey"
+    assert any("retry search_listings" in step for step in session["trace"])
     assert session["price_assessment"]["assessment"] in {"good deal", "fair", "pricey", "unknown"}
     assert session["outfit_suggestion"]
     assert session["fit_card"]
