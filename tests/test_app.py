@@ -6,9 +6,11 @@ from app import (
     add_preview_to_history,
     apply_saved_profile,
     handle_query,
+    load_listing_choice,
     preview_comparable_item,
     remove_saved_profile,
     save_profiles_from_history,
+    _listing_choices,
 )
 
 
@@ -43,6 +45,17 @@ def test_profile_memory_saves_from_history_checkbox_and_reuses_filters():
     assert "Saved profile memory saved" in status
     assert "Saved profile memory reused" in applied_status
     assert any("Baggy jeans + chunky sneakers" in str(cell) for cell in rows[0])
+
+
+def test_browse_all_starter_listings_fills_search_controls():
+    choices = _listing_choices()
+    selected = next(choice for choice in choices if "Vintage Band Tee" in choice)
+    item_description, size, max_price = load_listing_choice(selected)
+
+    assert len(choices) == 40
+    assert item_description == "Vintage Band Tee — Faded Grey"
+    assert size == "L"
+    assert max_price == 19
 
 
 def test_profile_memory_keeps_three_recent_unique_profiles():

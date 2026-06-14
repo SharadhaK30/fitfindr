@@ -27,7 +27,25 @@ STYLE_CHOICES = [
     "Anything simple",
 ]
 
-SIZE_CHOICES = ["Any", "XS", "S", "M", "L", "XL", "XXS", "8", "OS"]
+BASE_SIZE_CHOICES = ["Any", "XS", "S", "M", "L", "XL", "XXS", "8", "OS"]
+
+
+def _dataset_size_choices() -> list[str]:
+    choices = ["Any"]
+    try:
+        for item in load_listings():
+            item_size = str(item.get("size") or "").strip()
+            if item_size and item_size not in choices:
+                choices.append(item_size)
+    except (OSError, ValueError):
+        pass
+    for item_size in BASE_SIZE_CHOICES:
+        if item_size not in choices:
+            choices.append(item_size)
+    return choices
+
+
+SIZE_CHOICES = _dataset_size_choices()
 
 HISTORY_HEADERS = [
     "Save",
@@ -97,6 +115,29 @@ def _choices_update(choices: list[str], value: str | None = None):
     import gradio as gr
 
     return gr.update(choices=choices, value=value)
+
+
+def _listing_choice_label(item: dict[str, Any]) -> str:
+    return f"{item.get('title', 'Untitled')} | {item.get('size', 'Any')} | {_price_text(item.get('price'))}"
+
+
+def _listing_choices() -> list[str]:
+    try:
+        return [_listing_choice_label(item) for item in load_listings()]
+    except (OSError, ValueError):
+        return []
+
+
+def load_listing_choice(selected_listing: str | None) -> tuple[str, str, float]:
+    """Fill search controls from one of the 40 starter listings."""
+    for item in load_listings():
+        if _listing_choice_label(item) == selected_listing:
+            return (
+                str(item.get("title", "")),
+                str(item.get("size") or "Any"),
+                float(item.get("price", 35)),
+            )
+    return "", "Any", 35
 
 
 def _profile_label(profile: dict[str, Any]) -> str:
@@ -1190,6 +1231,11 @@ def build_app():
                         value="Straight jeans + loafers",
                         label="I mostly wear",
                     )
+                listing_picker = gr.Dropdown(
+                    _listing_choices(),
+                    label="Browse all 40 starter listings",
+                    interactive=True,
+                )
                 memory_status = gr.HTML(
                     _format_memory_status([])
                 )
@@ -1266,6 +1312,11 @@ def build_app():
                     preview_state,
                     comparable_picker,
                 ],
+            )
+            listing_picker.change(
+                load_listing_choice,
+                inputs=listing_picker,
+                outputs=[item_description, size, max_price],
             )
             preview_comparable_button.click(
                 preview_comparable_item,
